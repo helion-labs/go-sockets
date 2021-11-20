@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<title>Cat Watcher</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<body>
+  <style>
+    .background {
+      position: relative;
+      background-image: url("./static/bg.png");
+      background-size: cover;
+      height: 1000px;
+      z-index: 0;
+    }
+    .cat {
+      position: absolute;
+      top: 550px;
+      left: 480px;
+      z-index: 1;
+    }
+  </style>
+
+  <div> 
+    <div class="background"> </div>
+    <img src="./static/cat.png" class="cat" id="cat_id"></img>
+  </div>  
+
+  <script>
+    const IP = 'localhost:8090'
+    const HOME = "http:\/\/" + IP + '\/index'
+    const URL = "ws:\/\/" + IP + '\/upgrade';
+
+    console.log("Websocket URL == " + URL)
+    var ws = new WebSocket(URL);
+    
+    ws.onopen = function (evt) {
+      console.log("opened!")
+    }
+
+    ws.onclose = function (evt) {
+      console.log("web-socket closed, trying to open it again!")
+      ws = new WebSocket(URL);
+    }
+
+    ws.onmessage = function (evt) {
+      console.log("recv a message from the server")
+      try{ 
+        obj = JSON.parse(evt.data)
+      } catch(e) {
+        console.log("Failed to parse JSON!")
+        return
+      }
+      console.log(obj) 
+      let d_scaled = obj.Distance * 8;
+
+      // Move the cat to the correct location
+      document.getElementById("cat_id").style.left = d_scaled + "px"
+ 
+    }
+
+    ws.onerror = function (evt) {
+      console.log("Websocket error!")
+      console.log(evt)
+    }
+
+  </script>
+</html>
